@@ -33,20 +33,6 @@ export function useAcceptDelivery() {
   });
 }
 
-export function useMarkDelivered() {
-  const { enqueueSnackbar } = useSnackbar();
-  return useMutation({
-    mutationFn: (id: number) => deliveryApi.markDelivered(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['delivery'] });
-      enqueueSnackbar('Entrega finalizada!', { variant: 'success' });
-    },
-    onError: (error: Error) => {
-      enqueueSnackbar(error.message || 'Erro ao finalizar entrega', { variant: 'error' });
-    },
-  });
-}
-
 export function useDeliveryStats() {
   return useQuery({
     queryKey: ['delivery', 'stats'],

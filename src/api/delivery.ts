@@ -14,9 +14,6 @@ export const deliveryApi = {
   confirmPickup: (id: number) =>
     api.patch<{ message: string; order: Order }>(`/orders/delivery/${id}/pickup`),
 
-  markDelivered: (id: number) =>
-    api.patch<{ message: string; order: Order }>(`/orders/delivery/${id}/delivered`),
-
   getStats: () =>
     api.get<OrderStatsResponse>('/orders/stats'),
 };

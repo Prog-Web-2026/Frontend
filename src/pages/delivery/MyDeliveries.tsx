@@ -15,7 +15,7 @@ import {
   FiberManualRecord,
   NearMe,
 } from '@mui/icons-material';
-import { useMyDeliveries, useMarkDelivered } from '../../hooks/useDelivery';
+import { useMyDeliveries } from '../../hooks/useDelivery';
 import { formatCurrency, formatDate } from '../../lib/formatters';
 import LoadingScreen from '../../components/common/LoadingScreen';
 import { OrderStatus } from '../../types';
@@ -29,8 +29,6 @@ const DELIVERY_COMMISSION = 0.1;
 
 export default function MyDeliveries() {
   const { data, isLoading } = useMyDeliveries();
-  const markDelivered = useMarkDelivered();
-
   if (isLoading) return <LoadingScreen />;
 
   const orders = data?.orders ?? [];
@@ -134,7 +132,7 @@ export default function MyDeliveries() {
                   />
                 </Box>
 
-                <Box display="flex" gap={2}>
+                <Box display="flex" gap={2} alignItems="center">
                   {order.customer?.phone && (
                     <Button
                       variant="outlined"
@@ -145,15 +143,13 @@ export default function MyDeliveries() {
                       Ligar
                     </Button>
                   )}
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={() => markDelivered.mutate(order.id)}
-                    disabled={markDelivered.isPending}
-                    sx={{ bgcolor: '#1a237e', '&:hover': { bgcolor: '#0d1642' } }}
-                  >
-                    Finalizar Entrega &rarr;
-                  </Button>
+                  <Chip
+                    icon={<AccessTime sx={{ fontSize: 16 }} />}
+                    label="Aguardando confirmação do cliente"
+                    variant="outlined"
+                    color="info"
+                    sx={{ flex: 1 }}
+                  />
                 </Box>
               </CardContent>
             </Card>

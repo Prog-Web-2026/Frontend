@@ -11,7 +11,7 @@ import {
   Rating,
   TextField,
 } from '@mui/material';
-import { ExpandMore, ExpandLess, Inventory, Star, Payment } from '@mui/icons-material';
+import { ExpandMore, ExpandLess, Inventory, Star, Payment, CheckCircle } from '@mui/icons-material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { api } from '../../api/client';
@@ -42,6 +42,20 @@ function useCancelOrder() {
   });
 }
 
+function useConfirmDelivery() {
+  const { enqueueSnackbar } = useSnackbar();
+  return useMutation({
+    mutationFn: (id: number) => api.patch<{ message: string }>(`/orders/${id}/confirm-delivery`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      enqueueSnackbar('Recebimento confirmado com sucesso!', { variant: 'success' });
+    },
+    onError: (error: Error) => {
+      enqueueSnackbar(error.message || 'Erro ao confirmar recebimento', { variant: 'error' });
+    },
+  });
+}
+
 const CANCELLABLE = new Set<string>([OrderStatus.PENDING, OrderStatus.CONFIRMED]);
 
 interface ReviewFormState {
@@ -59,6 +73,7 @@ export default function OrdersDropdown({ anchorEl, onClose }: OrdersDropdownProp
   });
   const { data: myReviewsData } = useMyReviews();
   const cancelOrder = useCancelOrder();
+  const confirmDelivery = useConfirmDelivery();
   const createReview = useCreateReview();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [reviewForm, setReviewForm] = useState<ReviewFormState | null>(null);
@@ -259,6 +274,23 @@ export default function OrdersDropdown({ anchorEl, onClose }: OrdersDropdownProp
                         }}
                       >
                         Pagar
+                      </Button>
+                    )}
+                    {order.status === OrderStatus.OUT_FOR_DELIVERY && (
+                      <Button
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        fullWidth
+                        sx={{ mt: 1.5 }}
+                        startIcon={<CheckCircle />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          confirmDelivery.mutate(order.id);
+                        }}
+                        disabled={confirmDelivery.isPending}
+                      >
+                        Confirmar Recebimento
                       </Button>
                     )}
                     {canCancel && (
